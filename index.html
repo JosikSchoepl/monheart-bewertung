@@ -92,7 +92,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
 
   <section class="tafel" id="start" hidden>
     <h1>Hilf mit: Welche Monster sind heiß?</h1>
-    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie, also ein Monster in allen Stufen. Wisch nach rechts, wenn sie dir gefällt, nach links, wenn nicht. Bei „nicht“ kannst du kurz schreiben, was dich stört.</p>
+    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie aus dem Spiel, also ein Monster in allen Stufen, so wie es im Spiel aussieht. Wisch nach rechts, wenn sie dir gefällt, nach links, wenn nicht. Bei „nicht“ kannst du kurz schreiben, was dich stört.</p>
     <div class="beispiel"><span>← <em>nicht</em></span><span><b>heiß</b> →</span></div>
     <label for="name" style="font-weight:700">Dein Name (freiwillig, du kannst auch einfach starten)</label>
     <input id="name" autocomplete="nickname" placeholder="leer lassen geht auch" maxlength="40">
@@ -109,7 +109,8 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   <section class="tafel" id="ende" hidden>
     <h1>Fertig, danke!</h1>
     <p id="endeText">Deine Bewertungen sind angekommen.</p>
-    <button class="knopf leise" id="nochmal" type="button" style="max-width:none">Nochmal von vorn</button>
+<a class="knopf leise" href="entwuerfe/" style="max-width:none;text-decoration:none">Auch neue Entwürfe bewerten</a>
+    <button class="knopf leise" id="nochmal" type="button" style="max-width:none">Diese Liste nochmal von vorn</button>
   </section>
 </main>
 
@@ -133,7 +134,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   const $ = id => document.getElementById(id);
   const lies = (k, v) => { try { const x = localStorage.getItem("mh_" + k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } };
   const merk = (k, v) => { try { localStorage.setItem("mh_" + k, JSON.stringify(v)); } catch (e) {} };
-  let LINIEN = [], BILDER = {}, CODE = "", reihe = lies("reihe", null), fertig = lies("fertig", {}), warte = lies("warte", []);
+  let LINIEN = [], BILDER = {}, CODE = "", DECK = "spiel", reihe = lies("reihe", null), fertig = lies("fertig", {}), warte = lies("warte", []);
   let geraet = lies("geraet", null); if (!geraet) { geraet = Math.random().toString(36).slice(2, 10); merk("geraet", geraet); }
   $("name").value = lies("name", "");
 
@@ -162,7 +163,8 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   addEventListener("online", leere);
 
   // ---------- Karten
-  const offen = () => reihe.filter(id => !fertig[id] && LINIEN.some(l => l.id === id));
+  const imDeck = () => LINIEN.filter(l => (l.deck || "entwurf") === DECK);
+  const offen = () => reihe.filter(id => !fertig[id] && imDeck().some(l => l.id === id));
   function karte(l, hinten) {
     const d = document.createElement("div");
     d.className = "karte" + (hinten ? " hinten" : "");
@@ -177,7 +179,8 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
 
   function zeige() {
     const o = offen(), s = $("stapel");
-    $("zaehler").textContent = LINIEN.length ? `${LINIEN.length - o.length} / ${LINIEN.length}` : "";
+    const n0 = imDeck().length;
+    $("zaehler").textContent = n0 ? `${n0 - o.length} / ${n0}` : "";
     s.innerHTML = "";
     if (!o.length) { return ende(); }
     const l = LINIEN.find(x => x.id === o[0]), n = LINIEN.find(x => x.id === o[1]);
@@ -215,7 +218,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   function speichere(urteil, kommentar) {
     const l = aktuell.l;
     fertig[l.id] = urteil; merk("fertig", fertig);
-    sende({ name: $("name").value.trim() || lies("name", ""), id: l.id, linie: l.stufen.join(" → "), urteil, kommentar, geraet, code: CODE });
+    sende({ name: $("name").value.trim() || lies("name", ""), id: l.id, linie: l.stufen.join(" → "), urteil, kommentar, geraet, code: CODE, seite: DECK === "spiel" ? "Lexikon" : "Entwurf" });
   }
   function oeffneBlatt() {
     $("chips").querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
@@ -238,18 +241,26 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   function ende() {
     ["stapel", "knoepfe", "hilfe"].forEach(i => $(i).hidden = true);
     $("ende").hidden = false;
-    const h = Object.values(fertig).filter(v => v === "heiß").length;
-    $("endeText").textContent = `Du hast ${Object.keys(fertig).length} Linien bewertet, ${h} davon heiß. Deine Antworten sind bei mir angekommen.`;
+    const ids = imDeck().map(l => l.id), h = ids.filter(id => fertig[id] === "heiß").length;
+    $("endeText").textContent = `Du hast ${ids.length} Linien bewertet, ${h} davon heiß. Deine Antworten sind bei mir angekommen.`;
   }
-  $("nochmal").onclick = () => { fertig = {}; merk("fertig", fertig); $("ende").hidden = true; starte(); };
+  $("nochmal").onclick = () => { imDeck().forEach(l => delete fertig[l.id]); merk("fertig", fertig); $("ende").hidden = true; starte(DECK); };
+  function zurAuswahl() {
+    ["stapel", "knoepfe", "hilfe"].forEach(i => $(i).hidden = true);
+    const zahl = d => { const l = LINIEN.filter(x => (x.deck || "entwurf") === d); return `${l.filter(x => fertig[x.id]).length} / ${l.length}`; };
+    $("los").textContent = LINIEN.some(x => fertig[x.id]) ? `Weiter (${zahl(DECK)})` : "Los geht's";
+    $("zaehler").textContent = `${LINIEN.length} Linien`;
+    $("start").hidden = false;
+  }
 
-  function starte() {
+  function starte(deck) {
+    DECK = deck || DECK; merk("deck", DECK);
     merk("name", $("name").value.trim());
     $("start").hidden = true; ["stapel", "knoepfe", "hilfe"].forEach(i => $(i).hidden = false);
     zeige();
   }
-  $("los").onclick = starte;
-  $("name").addEventListener("keydown", e => { if (e.key === "Enter") starte(); });
+  $("los").onclick = () => starte(DECK);
+  $("name").addEventListener("keydown", e => { if (e.key === "Enter") starte(DECK); });
 
   // ---------- Code prüfen = Daten entschlüsseln (AES-GCM, Schlüssel aus dem Code per PBKDF2)
   const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -270,8 +281,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
       reihe = (reihe || []).filter(id => ids.includes(id)).concat(neu); merk("reihe", reihe);
     }
     $("tor").hidden = true;
-    $("zaehler").textContent = `${LINIEN.length} Linien`;
-    if (lies("name", "") && Object.keys(fertig).length) starte(); else $("start").hidden = false;
+    zurAuswahl();
     leere();
   }
   async function versuche(code, still) {

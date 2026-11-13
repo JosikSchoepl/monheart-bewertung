@@ -146,14 +146,18 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     warte.push(eintrag); merk("warte", warte);
     await leere();
   }
+  let sendetGerade = false;   // nur EIN Sendevorgang gleichzeitig, sonst geht eine Bewertung doppelt raus
   async function leere() {
-    if (!ENDPUNKT.startsWith("https://")) return;
-    while (warte.length) {
-      try {
-        await fetch(ENDPUNKT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(warte[0]) });
-        warte.shift(); merk("warte", warte);
-      } catch (e) { return; }
-    }
+    if (!ENDPUNKT.startsWith("https://") || sendetGerade) return;
+    sendetGerade = true;
+    try {
+      while (warte.length) {
+        const x = warte[0];
+        try { await fetch(ENDPUNKT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(x) }); }
+        catch (e) { return; }
+        warte = warte.filter(y => y !== x); merk("warte", warte);
+      }
+    } finally { sendetGerade = false; }
   }
   addEventListener("online", leere);
 
@@ -206,7 +210,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   function entscheide(urteil) {
     if (!aktuell || $("blatt").classList.contains("auf")) return;
     if (urteil === "heiss") { wegfliegen(1); speichere("heiß", ""); setTimeout(zeige, 260); }
-    else { wegfliegen(-1); oeffneBlatt(); }
+    else { wegfliegen(-1); setTimeout(() => { if (aktuell) aktuell.k.style.visibility = "hidden"; }, 300); oeffneBlatt(); }
   }
   function speichere(urteil, kommentar) {
     const l = aktuell.l;

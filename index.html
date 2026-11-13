@@ -129,7 +129,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
 
 <script>
 (function(){
-  const ENDPUNKT = "__ENDPUNKT__";
+  const ENDPUNKT = "https://script.google.com/macros/s/AKfycbwith1PAjSmaExuvkoVac2BZICo_uuzEuW7tppZdlMPammgAo-Woterna7QFDig0Jsr/exec";
   const $ = id => document.getElementById(id);
   const lies = (k, v) => { try { const x = localStorage.getItem("mh_" + k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } };
   const merk = (k, v) => { try { localStorage.setItem("mh_" + k, JSON.stringify(v)); } catch (e) {} };

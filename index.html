@@ -15,6 +15,7 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
+body{height:100dvh}
 body{background:radial-gradient(120% 80% at 50% 0%,var(--grund2),var(--grund));color:var(--hell);font-family:var(--text);
   padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
   display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
@@ -23,13 +24,15 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .logo i{width:22px;height:22px;border-radius:6px;background:var(--wuerfel);display:inline-block;position:relative}
 .logo i::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,var(--grund) 2.2px,transparent 2.6px),radial-gradient(circle at 70% 70%,var(--grund) 2.2px,transparent 2.6px),radial-gradient(circle at 50% 50%,var(--grund) 2.2px,transparent 2.6px)}
 .zaehler{font-variant-numeric:tabular-nums;color:#b8c0dc;font-size:.9rem}
-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;max-width:520px;width:100%;margin:0 auto;position:relative}
-.stapel{position:relative;width:100%;flex:1;min-height:0;margin:10px 0;display:grid;align-items:center}
-.karte{position:relative;grid-area:1/1;max-height:100%;background:var(--karte);color:var(--tinte);border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;max-width:520px;width:100%;margin:0 auto;position:relative}
+.stapel{position:relative;width:100%;flex:1 1 0;min-height:160px;margin:8px 0;display:grid;align-items:stretch}
+.karte{position:relative;grid-area:1/1;height:100%;max-height:100%;background:var(--karte);color:var(--tinte);border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);
   display:flex;flex-direction:column;overflow:hidden;touch-action:none;user-select:none;will-change:transform}
 .karte.hinten{transform:scale(.95) translateY(10px);filter:brightness(.92)}
-.karte .bild{flex:0 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;background:#fff;padding:8px}
-.karte img{width:100%;max-height:100%;object-fit:contain;pointer-events:none;border-radius:12px}
+.karte .bild{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;background:#fff;padding:8px}
+.hinweis{background:#fff4d6;color:#6b4e00!important;border-radius:12px;padding:10px 12px;font-size:.92rem}
+.danke{font-weight:700;color:var(--tinte)!important}
+.karte img{width:100%;height:100%;max-height:100%;object-fit:contain;pointer-events:none;border-radius:12px}
 .karte .info{padding:12px 16px 14px;border-top:1px solid #ece9e2;display:flex;flex-direction:column;gap:6px}
 .stufen{font-family:var(--display);font-weight:700;font-size:1.15rem;line-height:1.2;text-wrap:balance}
 .stufen span{color:var(--leise);font-weight:500;margin:0 4px}
@@ -54,14 +57,32 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .notiz::placeholder{color:#8f98ba}
 .zurueck{font:inherit;font-size:.85rem;background:none;border:0;color:#b8c0dc;text-decoration:underline;cursor:pointer;padding:6px}
 .karte .bild{background:#f6f7fb}
-.karte img{image-rendering:pixelated}
+@media (max-width:520px){
+  body{padding-left:10px;padding-right:10px}
+  .karte .info{padding:8px 12px 10px;gap:4px}
+  .stufen{font-size:1rem}
+  .idee{font-size:.82rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .zahlen button{padding:13px 0;font-size:1.1rem}
+  .skala{margin-top:6px}
+  .tafel{padding:18px 16px}
+}
+@media (max-height:640px){ .skala .titel{display:none} }
+@media (max-height:500px){
+  main{max-width:900px}
+  .zahlen{grid-template-columns:repeat(10,1fr);gap:4px}
+  .zahlen button{padding:8px 0;font-size:1rem}
+  .karte .info{padding:4px 12px 6px;flex-direction:row;align-items:center;gap:10px}
+  .stufen{font-size:.95rem}
+  .stapel{min-height:120px;margin:4px 0}
+  header .logo{font-size:1rem}
+}
 .zahlen button{font:inherit;font-family:var(--display);font-weight:700;font-size:1.15rem;border:0;border-radius:12px;padding:14px 0;cursor:pointer;background:var(--grund2);color:var(--hell);box-shadow:inset 0 0 0 1.5px #3a4670}
 .zahlen button:nth-child(-n+4){color:#c9d0ff}
 .zahlen button:nth-child(n+8){color:#ffc2ad}
 .zahlen button:active{transform:scale(.94)}
 .zahlen button:focus-visible{outline:3px solid var(--wuerfel);outline-offset:2px}
 /* Start und Ende */
-.tafel{background:var(--karte);color:var(--tinte);border-radius:22px;padding:24px 20px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.tafel{margin:auto 0;flex-shrink:0;background:var(--karte);color:var(--tinte);border-radius:22px;padding:24px 20px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
 .tafel h1{font-family:var(--display);font-size:1.6rem;margin:0;line-height:1.15;text-wrap:balance}
 .tafel p{margin:0;color:var(--leise)}
 .tafel input{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px;padding:12px;width:100%}
@@ -71,6 +92,8 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .blatt{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--karte);color:var(--tinte);border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.35);
   padding:18px max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));transform:translateY(105%);transition:transform .25s ease}
 .blatt.auf{transform:none}
+.blatt{max-height:88dvh;overflow-y:auto}
+@media (max-width:420px){ .chip{font-size:.82rem;padding:6px 10px} textarea{min-height:60px} .blatt h2{font-size:1.05rem} }
 .blatt .innen{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .blatt h2{font-family:var(--display);margin:0;font-size:1.2rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -105,7 +128,9 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
 
   <section class="tafel" id="start" hidden>
     <h1>Hilf mit: Wie gut sind die Monster?</h1>
-    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie so, wie die Monster im Spiel aussehen (Pixel-Bilder aus dem Lexikon). Gib jeder Linie eine Note von 1 (gar nicht) bis 10 (mega). Ein Tipp genügt, die Note wird sofort geschickt.</p>
+    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie: oben die Zeichnung, darunter die Monster so, wie sie im Spiel aussehen (Pixel). Gib jeder Linie eine Note von 1 (gar nicht) bis 10 (mega) – ein Tipp genügt.</p>
+    <p class="hinweis"><b>Wichtig:</b> Die Namen der Monster sind nur Platzhalter und ändern sich noch – bitte nur das Aussehen bewerten.</p>
+    <p class="danke">Danke schon mal, dass du mithilfst! 💛</p>
     <label for="name" style="font-weight:700">Dein Name (freiwillig, du kannst auch einfach starten)</label>
     <input id="name" autocomplete="nickname" placeholder="leer lassen geht auch" maxlength="40">
     <button class="knopf heiss" id="los" type="button" style="max-width:none">Los geht's</button>
@@ -116,7 +141,6 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   <div class="skala" id="skala" hidden>
     <span class="titel">Deine Note: 1 = gar nicht · 10 = mega</span>
     <div class="zahlen" id="zahlen"></div>
-    <input id="notiz" class="notiz" maxlength="200" placeholder="Kommentar (freiwillig), dann Note tippen">
   </div>
   <p class="hilfe" id="hilfe" hidden><button type="button" class="zurueck" id="zurueck" hidden>↶ letzte Note ändern</button></p>
 
@@ -127,6 +151,20 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     <button class="knopf leise" id="nochmal" type="button" style="max-width:none">Diese Liste nochmal von vorn</button>
   </section>
 </main>
+
+<div class="schleier" id="schleier"></div>
+<div class="blatt" id="blatt" role="dialog" aria-labelledby="blattTitel">
+  <div class="innen">
+    <h2 id="blattTitel">Magst du kurz sagen, was nicht passt?</h2>
+    <p class="hilfe" style="text-align:left;color:var(--leise);margin:0">Freiwillig – einfach überspringen oder kurz ausfüllen und weiter.</p>
+    <div class="chips" id="chips"></div>
+    <textarea id="kommentar" placeholder="z. B. „Die zweite Stufe sieht aus wie eine Kaffeemaschine“"></textarea>
+    <div class="reihe">
+      <button class="knopf leise" id="ohne" type="button">Überspringen</button>
+      <button class="knopf voll" id="senden" type="button">Weiter</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -168,7 +206,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     d.innerHTML = `<div class="bild"><img src="${BILDER[l.id] || ""}" alt="Pixel-Monster ${l.stufen.join(", ")}" draggable="false"></div>
       <div class="info"><div class="stufen">${l.stufen.map(esc).join('<span>→</span>')}</div>
       <div class="zeile">${l.typ ? `<span class="typ">${esc(l.typ)}</span>` : ""}</div>
-      ${l.idee ? `<p class="idee">${esc(l.idee)}</p>` : ""}</div>
+</div>
 `;
     return d;
   }
@@ -185,16 +223,37 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     const k = karte(l, false); s.appendChild(k); ziehbar(k, l);
   }
 
-  let aktuell = null, letzte = null;
+  const GRUENDE = ["Farben", "Form / Körper", "zu kindlich", "erinnert an was Bekanntes", "Gesicht", "1. Stufe", "2. Stufe", "3. Stufe", "Name", "Pixel-Bild sieht kaputt aus"];
+  $("chips").innerHTML = GRUENDE.map(g => `<button type="button" class="chip" aria-pressed="false">${g}</button>`).join("");
+  $("chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) c.setAttribute("aria-pressed", String(c.getAttribute("aria-pressed") !== "true")); });
+  let aktuell = null, letzte = null, offeneNote = 0;
   function ziehbar(k, l) { aktuell = { k, l }; k.addEventListener("click", () => { const i = k.querySelector(".idee"); if (i) i.classList.toggle("auf"); }); }
   $("zahlen").innerHTML = Array.from({ length: 10 }, (_, i) => `<button type="button" data-n="${i + 1}" aria-label="Note ${i + 1} von 10">${i + 1}</button>`).join("");
+  function weg() { const k = aktuell.k; k.style.transition = "transform .25s ease, opacity .25s"; k.style.transform = "translateY(-30px) scale(.96)"; k.style.opacity = "0"; }
   function note(n) {
-    if (!aktuell) return;
-    const k = aktuell.k; k.style.transition = "transform .25s ease, opacity .25s"; k.style.transform = "translateY(-30px) scale(.96)"; k.style.opacity = "0";
-    speichere(n + "/10", $("notiz").value.trim()); $("notiz").value = "";
+    if (!aktuell || $("blatt").classList.contains("auf")) return;
+    if (n <= 4) { offeneNote = n; oeffneBlatt(); return; }        // niedrige Note: Kommentar anbieten (freiwillig)
+    fertigMit(n, "");
+  }
+  function fertigMit(n, text) {
+    weg(); speichere(n + "/10", text);
     letzte = aktuell.l.id; $("zurueck").hidden = false;
     setTimeout(zeige, 220);
   }
+  function oeffneBlatt() {
+    $("chips").querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
+    $("kommentar").value = "";
+    $("blatt").classList.add("auf"); $("schleier").classList.add("auf");
+  }
+  function schliesseBlatt(mitText) {
+    const gruende = [...$("chips").querySelectorAll('.chip[aria-pressed="true"]')].map(c => c.textContent);
+    const text = mitText ? [gruende.join(", "), $("kommentar").value.trim()].filter(Boolean).join(" – ") : "";
+    $("blatt").classList.remove("auf"); $("schleier").classList.remove("auf");
+    fertigMit(offeneNote, text);
+  }
+  $("senden").onclick = () => schliesseBlatt(true);
+  $("ohne").onclick = () => schliesseBlatt(false);
+  $("schleier").onclick = () => schliesseBlatt(false);
   $("zahlen").addEventListener("click", e => { const b = e.target.closest("button"); if (b) note(+b.dataset.n); });
   $("zurueck").onclick = () => { if (!letzte) return; delete fertig[letzte]; merk("fertig", fertig); reihe = [letzte].concat(reihe.filter(id => id !== letzte)); merk("reihe", reihe); letzte = null; $("zurueck").hidden = true; zeige(); };
   function speichere(urteil, kommentar) {
@@ -202,7 +261,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     fertig[l.id] = urteil; merk("fertig", fertig);
     sende({ name: $("name").value.trim() || lies("name", ""), id: l.id, linie: l.stufen.join(" → "), urteil, kommentar, geraet, code: CODE, seite: "Lexikon-Pixel" });
   }
-  addEventListener("keydown", e => { if (e.target.tagName === "INPUT") return; const n = e.key === "0" ? 10 : +e.key; if (n >= 1 && n <= 10) note(n); });
+  addEventListener("keydown", e => { if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return; const n = e.key === "0" ? 10 : +e.key; if (n >= 1 && n <= 10) note(n); });
 
   function ende() {
     ["stapel", "knoepfe", "skala", "hilfe"].forEach(i => $(i).hidden = true);

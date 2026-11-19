@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;700&display=swap">
 <style>
-/* Eine Karte in der Mitte, zwei große Daumen-Knöpfe unten, Kommentar-Blatt fährt von unten rein */
+/* Eine Karte in der Mitte (nur Pixel-Monster aus dem Lexikon), darunter Noten 1–10 (Nutzer 19.11.2026) */
 :root{
   --grund:#1d2540; --grund2:#273256; --karte:#fbfaf7; --tinte:#1b2033; --leise:#6b7390;
   --heiss:#ff6a3d; --nicht:#5b6aa0; --wuerfel:#ffd166; --hell:#eef1fb;
@@ -49,8 +49,13 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .hilfe{font-size:.8rem;color:#9aa3c4;text-align:center;margin:6px 0 0}
 .skala{width:100%;display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:10px}
 .skala .titel{font-size:.8rem;color:#b8c0dc}
-.zahlen{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;width:100%}
-.zahlen button{font:inherit;font-family:var(--display);font-weight:700;font-size:.95rem;border:0;border-radius:10px;padding:9px 0;cursor:pointer;background:var(--grund2);color:var(--hell);box-shadow:inset 0 0 0 1.5px #3a4670}
+.zahlen{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
+.notiz{font:inherit;font-size:16px;width:100%;border:0;border-radius:12px;padding:10px 12px;background:var(--grund2);color:var(--hell);box-shadow:inset 0 0 0 1.5px #3a4570}
+.notiz::placeholder{color:#8f98ba}
+.zurueck{font:inherit;font-size:.85rem;background:none;border:0;color:#b8c0dc;text-decoration:underline;cursor:pointer;padding:6px}
+.karte .bild{background:#f6f7fb}
+.karte img{image-rendering:pixelated}
+.zahlen button{font:inherit;font-family:var(--display);font-weight:700;font-size:1.15rem;border:0;border-radius:12px;padding:14px 0;cursor:pointer;background:var(--grund2);color:var(--hell);box-shadow:inset 0 0 0 1.5px #3a4670}
 .zahlen button:nth-child(-n+4){color:#c9d0ff}
 .zahlen button:nth-child(n+8){color:#ffc2ad}
 .zahlen button:active{transform:scale(.94)}
@@ -99,24 +104,21 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   </section>
 
   <section class="tafel" id="start" hidden>
-    <h1>Hilf mit: Welche Monster sind heiß?</h1>
-    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie aus dem Spiel: oben die Zeichnung, darunter das Monster so, wie es im Spiel aussieht. Wisch nach rechts, wenn sie dir gefällt, nach links, wenn nicht. Bei „nicht“ kannst du kurz schreiben, was dich stört.</p>
-    <div class="beispiel"><span>← <em>nicht</em></span><span><b>heiß</b> →</span></div>
+    <h1>Hilf mit: Wie gut sind die Monster?</h1>
+    <p>Ich baue ein eigenes Monster-Spiel. Jede Karte zeigt eine Entwicklungslinie so, wie die Monster im Spiel aussehen (Pixel-Bilder aus dem Lexikon). Gib jeder Linie eine Note von 1 (gar nicht) bis 10 (mega). Ein Tipp genügt, die Note wird sofort geschickt.</p>
     <label for="name" style="font-weight:700">Dein Name (freiwillig, du kannst auch einfach starten)</label>
     <input id="name" autocomplete="nickname" placeholder="leer lassen geht auch" maxlength="40">
     <button class="knopf heiss" id="los" type="button" style="max-width:none">Los geht's</button>
   </section>
 
   <div class="stapel" id="stapel" hidden></div>
-  <div class="knoepfe" id="knoepfe" hidden>
-    <button class="knopf nicht" id="kNicht" type="button" aria-label="Nicht so">👎 nicht</button>
-    <button class="knopf heiss" id="kHeiss" type="button" aria-label="Heiß">🔥 heiß</button>
-  </div>
+  <div class="knoepfe" id="knoepfe" hidden></div>
   <div class="skala" id="skala" hidden>
-    <span class="titel">oder eine Note geben (1 = gar nicht, 10 = mega)</span>
+    <span class="titel">Deine Note: 1 = gar nicht · 10 = mega</span>
     <div class="zahlen" id="zahlen"></div>
+    <input id="notiz" class="notiz" maxlength="200" placeholder="Kommentar (freiwillig), dann Note tippen">
   </div>
-  <p class="hilfe" id="hilfe" hidden>Wischen, Knopf oder Note: alles wird sofort geschickt.</p>
+  <p class="hilfe" id="hilfe" hidden><button type="button" class="zurueck" id="zurueck" hidden>↶ letzte Note ändern</button></p>
 
   <section class="tafel" id="ende" hidden>
     <h1>Fertig, danke!</h1>
@@ -126,33 +128,16 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   </section>
 </main>
 
-<div class="schleier" id="schleier"></div>
-<div class="blatt" id="blatt" role="dialog" aria-labelledby="blattTitel">
-  <div class="innen">
-    <h2 id="blattTitel">Was taugt dir nicht?</h2>
-    <div class="chips" id="chips"></div>
-    <label for="kommentar" class="hilfe" style="text-align:left;color:var(--leise);margin:0">Eigene Worte (freiwillig)</label>
-    <textarea id="kommentar" placeholder="z. B. „Die zweite Stufe sieht aus wie eine Kaffeemaschine“"></textarea>
-    <div class="reihe">
-      <button class="knopf leise" id="ohne" type="button">Ohne Kommentar</button>
-      <button class="knopf voll" id="senden" type="button">Abschicken</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function(){
   const ENDPUNKT = "https://script.google.com/macros/s/AKfycbwith1PAjSmaExuvkoVac2BZICo_uuzEuW7tppZdlMPammgAo-Woterna7QFDig0Jsr/exec";
   const $ = id => document.getElementById(id);
-  const lies = (k, v) => { try { const x = localStorage.getItem("mh_" + k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } };
-  const merk = (k, v) => { try { localStorage.setItem("mh_" + k, JSON.stringify(v)); } catch (e) {} };
+  const lies = (k, v) => { try { const x = localStorage.getItem("mh2_" + k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } };
+  const merk = (k, v) => { try { localStorage.setItem("mh2_" + k, JSON.stringify(v)); } catch (e) {} };
   let LINIEN = [], BILDER = {}, CODE = "", DECK = "spiel", reihe = lies("reihe", null), fertig = lies("fertig", {}), warte = lies("warte", []);
   let geraet = lies("geraet", null); if (!geraet) { geraet = Math.random().toString(36).slice(2, 10); merk("geraet", geraet); }
   $("name").value = lies("name", "");
 
-  const GRUENDE = ["Farben", "Form / Körper", "zu kindlich", "erinnert an was Bekanntes", "Gesicht", "1. Stufe", "2. Stufe", "3. Stufe", "Namen", "passt nicht zum Typ"];
-  $("chips").innerHTML = GRUENDE.map(g => `<button type="button" class="chip" aria-pressed="false">${g}</button>`).join("");
-  $("chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) c.setAttribute("aria-pressed", String(c.getAttribute("aria-pressed") !== "true")); });
 
   // ---------- Senden (mit Warteschlange, falls das Netz kurz weg ist)
   async function sende(eintrag) {
@@ -180,11 +165,11 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
   function karte(l, hinten) {
     const d = document.createElement("div");
     d.className = "karte" + (hinten ? " hinten" : "");
-    d.innerHTML = `<div class="bild"><img src="${BILDER[l.id] || ""}" alt="Entwicklungslinie ${l.stufen.join(", ")}" draggable="false"></div>
+    d.innerHTML = `<div class="bild"><img src="${BILDER[l.id] || ""}" alt="Pixel-Monster ${l.stufen.join(", ")}" draggable="false"></div>
       <div class="info"><div class="stufen">${l.stufen.map(esc).join('<span>→</span>')}</div>
       <div class="zeile">${l.typ ? `<span class="typ">${esc(l.typ)}</span>` : ""}</div>
       ${l.idee ? `<p class="idee">${esc(l.idee)}</p>` : ""}</div>
-      <div class="stempel heiss">HEISS</div><div class="stempel nicht">NICHT</div>`;
+`;
     return d;
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -200,69 +185,31 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     const k = karte(l, false); s.appendChild(k); ziehbar(k, l);
   }
 
-  let aktuell = null;
-  function ziehbar(k, l) {
-    aktuell = { k, l };
-    let x0 = null, dx = 0, bewegt = false;
-    const heiss = k.querySelector(".stempel.heiss"), nicht = k.querySelector(".stempel.nicht");
-    k.addEventListener("pointerdown", e => { x0 = e.clientX; dx = 0; bewegt = false; k.setPointerCapture(e.pointerId); k.style.transition = "none"; });
-    k.addEventListener("pointermove", e => {
-      if (x0 == null) return; dx = e.clientX - x0; if (Math.abs(dx) > 6) bewegt = true;
-      k.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
-      heiss.style.opacity = Math.max(0, Math.min(1, dx / 90)); nicht.style.opacity = Math.max(0, Math.min(1, -dx / 90));
-    });
-    const los = () => {
-      if (x0 == null) return; x0 = null;
-      if (!bewegt) { const i = k.querySelector(".idee"); if (i) i.classList.toggle("auf"); return; }
-      if (dx > 100) entscheide("heiss"); else if (dx < -100) entscheide("nicht");
-      else { k.style.transition = "transform .2s"; k.style.transform = ""; heiss.style.opacity = nicht.style.opacity = 0; }
-    };
-    k.addEventListener("pointerup", los); k.addEventListener("pointercancel", los);
-  }
-  function wegfliegen(richtung) {
-    const k = aktuell.k; k.style.transition = "transform .3s ease"; k.style.transform = `translateX(${richtung * 140}%) rotate(${richtung * 20}deg)`;
-  }
-  function entscheide(urteil) {
-    if (!aktuell || $("blatt").classList.contains("auf")) return;
-    if (urteil === "heiss") { wegfliegen(1); speichere("heiß", ""); setTimeout(zeige, 260); }
-    else { offenesUrteil = "nicht"; wegfliegen(-1); setTimeout(() => { if (aktuell) aktuell.k.style.visibility = "hidden"; }, 300); oeffneBlatt(); }
-  }
-  let offenesUrteil = "nicht";   // was das Kommentar-Blatt am Ende abschickt („nicht“ oder eine Note bis 4)
+  let aktuell = null, letzte = null;
+  function ziehbar(k, l) { aktuell = { k, l }; k.addEventListener("click", () => { const i = k.querySelector(".idee"); if (i) i.classList.toggle("auf"); }); }
   $("zahlen").innerHTML = Array.from({ length: 10 }, (_, i) => `<button type="button" data-n="${i + 1}" aria-label="Note ${i + 1} von 10">${i + 1}</button>`).join("");
-  $("zahlen").addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b || !aktuell || $("blatt").classList.contains("auf")) return;
-    const n = +b.dataset.n;
-    if (n <= 4) { offenesUrteil = n + "/10"; wegfliegen(-1); setTimeout(() => { if (aktuell) aktuell.k.style.visibility = "hidden"; }, 300); oeffneBlatt(); }
-    else { wegfliegen(1); speichere(n + "/10", ""); setTimeout(zeige, 260); }
-  });
+  function note(n) {
+    if (!aktuell) return;
+    const k = aktuell.k; k.style.transition = "transform .25s ease, opacity .25s"; k.style.transform = "translateY(-30px) scale(.96)"; k.style.opacity = "0";
+    speichere(n + "/10", $("notiz").value.trim()); $("notiz").value = "";
+    letzte = aktuell.l.id; $("zurueck").hidden = false;
+    setTimeout(zeige, 220);
+  }
+  $("zahlen").addEventListener("click", e => { const b = e.target.closest("button"); if (b) note(+b.dataset.n); });
+  $("zurueck").onclick = () => { if (!letzte) return; delete fertig[letzte]; merk("fertig", fertig); reihe = [letzte].concat(reihe.filter(id => id !== letzte)); merk("reihe", reihe); letzte = null; $("zurueck").hidden = true; zeige(); };
   function speichere(urteil, kommentar) {
     const l = aktuell.l;
     fertig[l.id] = urteil; merk("fertig", fertig);
-    sende({ name: $("name").value.trim() || lies("name", ""), id: l.id, linie: l.stufen.join(" → "), urteil, kommentar, geraet, code: CODE, seite: DECK === "spiel" ? "Lexikon" : "Entwurf" });
+    sende({ name: $("name").value.trim() || lies("name", ""), id: l.id, linie: l.stufen.join(" → "), urteil, kommentar, geraet, code: CODE, seite: "Lexikon-Pixel" });
   }
-  function oeffneBlatt() {
-    $("chips").querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
-    $("kommentar").value = "";
-    $("blatt").classList.add("auf"); $("schleier").classList.add("auf");
-  }
-  function schliesseBlatt(mitText) {
-    const gruende = [...$("chips").querySelectorAll('.chip[aria-pressed="true"]')].map(c => c.textContent);
-    const text = mitText ? [gruende.join(", "), $("kommentar").value.trim()].filter(Boolean).join(" – ") : "";
-    speichere(offenesUrteil, text);
-    $("blatt").classList.remove("auf"); $("schleier").classList.remove("auf");
-    zeige();
-  }
-  $("senden").onclick = () => schliesseBlatt(true);
-  $("ohne").onclick = () => schliesseBlatt(false);
-  $("kHeiss").onclick = () => entscheide("heiss");
-  $("kNicht").onclick = () => entscheide("nicht");
-  addEventListener("keydown", e => { if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return; if (e.key === "ArrowRight") entscheide("heiss"); if (e.key === "ArrowLeft") entscheide("nicht"); });
+  addEventListener("keydown", e => { if (e.target.tagName === "INPUT") return; const n = e.key === "0" ? 10 : +e.key; if (n >= 1 && n <= 10) note(n); });
 
   function ende() {
     ["stapel", "knoepfe", "skala", "hilfe"].forEach(i => $(i).hidden = true);
     $("ende").hidden = false;
-    const ids = imDeck().map(l => l.id), h = ids.filter(id => fertig[id] === "heiß").length;
-    $("endeText").textContent = `Du hast ${ids.length} Linien bewertet, ${h} davon heiß. Deine Antworten sind bei mir angekommen.`;
+    const ids = imDeck().map(l => l.id), noten = ids.map(id => parseInt(fertig[id])).filter(n => n > 0);
+    const schnitt = noten.length ? (noten.reduce((a, b) => a + b, 0) / noten.length).toFixed(1).replace(".", ",") : "–";
+    $("endeText").textContent = `Du hast ${ids.length} Linien bewertet, im Schnitt ${schnitt} von 10. Deine Antworten sind bei mir angekommen.`;
   }
   $("nochmal").onclick = () => { imDeck().forEach(l => delete fertig[l.id]); merk("fertig", fertig); $("ende").hidden = true; starte(DECK); };
   function zurAuswahl() {

@@ -155,7 +155,7 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
 <div class="schleier" id="schleier"></div>
 <div class="blatt" id="blatt" role="dialog" aria-labelledby="blattTitel">
   <div class="innen">
-    <h2 id="blattTitel">Magst du kurz sagen, was nicht passt?</h2>
+    <h2 id="blattTitel">Was passt nicht?</h2>
     <p class="hilfe" style="text-align:left;color:var(--leise);margin:0">Freiwillig – einfach überspringen oder kurz ausfüllen und weiter.</p>
     <div class="chips" id="chips"></div>
     <textarea id="kommentar" placeholder="z. B. „Die zweite Stufe sieht aus wie eine Kaffeemaschine“"></textarea>
@@ -223,8 +223,6 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     const k = karte(l, false); s.appendChild(k); ziehbar(k, l);
   }
 
-  const GRUENDE = ["Farben", "Form / Körper", "zu kindlich", "erinnert an was Bekanntes", "Gesicht", "1. Stufe", "2. Stufe", "3. Stufe", "Name", "Pixel-Bild sieht kaputt aus"];
-  $("chips").innerHTML = GRUENDE.map(g => `<button type="button" class="chip" aria-pressed="false">${g}</button>`).join("");
   $("chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) c.setAttribute("aria-pressed", String(c.getAttribute("aria-pressed") !== "true")); });
   let aktuell = null, letzte = null, offeneNote = 0;
   function ziehbar(k, l) { aktuell = { k, l }; k.addEventListener("click", () => { const i = k.querySelector(".idee"); if (i) i.classList.toggle("auf"); }); }
@@ -241,7 +239,8 @@ textarea{font:inherit;font-size:16px;border:2px solid #dfe3f0;border-radius:12px
     setTimeout(zeige, 220);
   }
   function oeffneBlatt() {
-    $("chips").querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
+    // nur „Nicht mein Fall“ + die Stufen dieser Linie zum Anklicken (Nutzer 19.11.2026)
+    $("chips").innerHTML = ["Nicht mein Fall", ...aktuell.l.stufen].map(g => `<button type="button" class="chip" aria-pressed="false">${esc(g)}</button>`).join("");
     $("kommentar").value = "";
     $("blatt").classList.add("auf"); $("schleier").classList.add("auf");
   }
